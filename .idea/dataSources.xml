@@ -7,5 +7,11 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/first_db</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="hibernate_demo_db@localhost" uuid="021ac720-ceab-4425-8622-c20ed29f8df2">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/hibernate_demo_db</jdbc-url>
+    </data-source>
   </component>
 </project>

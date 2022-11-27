@@ -1,10 +1,13 @@
 package nick.people.dao;
 
 import nick.people.models.Person;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,32 +16,44 @@ import java.util.List;
 @Component
 public class PersonDAO {
 
-    private static JdbcTemplate jdbcTemplate = null;
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    public PersonDAO(JdbcTemplate jdbcTemplate) {
-        PersonDAO.jdbcTemplate = jdbcTemplate;
+    public PersonDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
-    public List<Person> index(){
-        return  jdbcTemplate.query("SELECT * FROM Person", new BeanPropertyRowMapper<>(Person.class) );
+    @Transactional(readOnly = true)
+    public List<Person> index() {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("select p from Person p",Person.class).
+                getResultList();
     }
 
-    public Person show(int id){
-        return jdbcTemplate.query("SELECT * FROM Person WHERE id=?", new Object[]{id},
-                new BeanPropertyRowMapper<>(Person.class)).stream().findAny().orElse(null);
+    @Transactional(readOnly = true)
+    public Person show(int id) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.get(Person.class,id);
     }
 
-    public void save(Person person){
-        jdbcTemplate.update("INSERT INTO Person(name,number,age,email) VALUES(?,?,?,?)",person.getName(),
-                person.getNumber(),person.getAge(),person.getEmail());
-    }
-    public void update(int id, Person person){
-        jdbcTemplate.update("UPDATE Person SET name=?,number=?,age=?,email=? WHERE id=?",
-                person.getName(),person.getNumber(),person.getAge(),person.getEmail(),id);
+    @Transactional
+    public void save(Person person) {
+        Session session = sessionFactory.getCurrentSession();
+        session.save(person);
     }
 
-    public static void delete(int id){
-        jdbcTemplate.update("DELETE FROM Person WHERE id=?",id);
+    @Transactional
+    public void update(int id, Person updatedPerson) {
+        Session session = sessionFactory.getCurrentSession();
+        Person person = session.get(Person.class,id);
+        person.setName(updatedPerson.getName());
+        person.setAge(updatedPerson.getAge());
+        person.setEmail(updatedPerson.getEmail());
+    }
+
+    @Transactional
+    public void delete(int id) {
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(session.get(Person.class,id));
     }
 }
