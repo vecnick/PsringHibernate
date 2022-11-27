@@ -1,1 +1,1 @@
-код бд в ресурсах, сделано на jdbc template + spring mvc
+код бд в ресурсах, сделано на hibernate + spring mvc
